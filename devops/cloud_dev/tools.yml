@@ -1,0 +1,38 @@
+- hosts: all
+  become: yes
+  gather_facts: no
+  tasks:
+  - name: ensure apt key for Oracle VirtualBox repository is configured
+    apt_key:
+      url: "http://download.virtualbox.org/virtualbox/debian/oracle_vbox_2016.asc"
+      state: present
+    tags: virtualbox
+
+  - name: ensure Oracle VirtualBox apt repository is configured
+    apt_repository:
+      repo: "deb http://download.virtualbox.org/virtualbox/debian {{ ubuntu_distribution }} contrib"
+      state: present
+    tags: virtualbox
+
+  - name: ensure VirtualBox is installed
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: yes
+    with_items: virtualbox-5.2
+
+  - name: ensure vagrant is downloaded
+    get_url:
+      url: "{{ vagrant_url_deb }}"
+      dest: /tmp/vagrant.deb
+
+  - name: ensure vagrant is installed
+    apt:
+      deb: /tmp/vagrant.deb
+
+  - name: ensure git is installed
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: yes
+    with_items: git
